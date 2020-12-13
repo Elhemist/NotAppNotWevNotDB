@@ -1,0 +1,18 @@
+[package]
+name = "product-delivery"
+version = "0.1.0"
+authors = ["evikser <evikser@gmail.com>", "elhemist <yandra_5@bk.ru>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+diesel = { version = "1.4.4", features = ["postgres", "numeric"] }
+dotenv = "0.15.0"
+diesel-derive-enum = { version = "1", features = ["postgres"] }
+bigdecimal = { version = "0.1.2", features = ["serde"] }
+rocket = "0.4.6"
+rocket_contrib = { version = "0.4.6", features = ["json", "diesel_postgres_pool"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_derive = "1.0"
