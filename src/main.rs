@@ -15,6 +15,8 @@ extern crate config;
 
 extern crate dotenv;
 
+use rocket_cors::{AllowedHeaders, AllowedOrigins};
+
 use diesel::prelude::*;
 use rocket::config::{Config, Environment, Value};
 use rocket::fairing::AdHoc;
@@ -39,6 +41,27 @@ fn run_db_migrations(rocket: rocket::Rocket) -> Result<rocket::Rocket, rocket::R
 }
 
 fn main() {
+    let allowed_origins = AllowedOrigins::all();
+
+    let cors = rocket_cors::CorsOptions {
+        allowed_origins,
+        allowed_methods: vec![
+            rocket::http::Method::Get,
+            rocket::http::Method::Post,
+            rocket::http::Method::Put,
+            rocket::http::Method::Delete,
+            rocket::http::Method::Head,
+        ]
+        .into_iter()
+        .map(From::from)
+        .collect(),
+        allowed_headers: AllowedHeaders::all(),
+        allow_credentials: true,
+        ..Default::default()
+    }
+    .to_cors()
+    .unwrap();
+
     let mut settings = config::Config::default();
     settings.merge(config::File::with_name("Settings")).unwrap();
 
@@ -62,6 +85,7 @@ fn main() {
     rocket::custom(config)
         .attach(DbConn::fairing())
         .attach(AdHoc::on_attach("Database Migrations", run_db_migrations))
+        .attach(cors)
         .mount("/", routes![hello])
         .launch();
 }
