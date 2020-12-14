@@ -3,6 +3,7 @@ FROM rustlang/rust:nightly-buster as builder
 WORKDIR /product-delivery
 COPY ./Cargo.toml ./Cargo.toml
 COPY ./src ./src
+COPY ./migrations ./migrations
 
 RUN cargo build --release
 

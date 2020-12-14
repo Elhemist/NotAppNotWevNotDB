@@ -6,23 +6,37 @@ extern crate diesel;
 #[macro_use]
 extern crate diesel_derive_enum;
 
+#[macro_use]
+extern crate diesel_migrations;
+
+extern crate rocket_contrib;
+
 extern crate config;
 
 extern crate dotenv;
 
-use diesel::pg::PgConnection;
 use diesel::prelude::*;
-use dotenv::dotenv;
 use rocket::config::{Config, Environment, Value};
+use rocket::fairing::AdHoc;
 use rocket_contrib::databases;
 use rocket_contrib::json::Json;
 use std::collections::HashMap;
-use std::env;
 
 pub mod models;
 pub mod schema;
+
+embed_migrations!("migrations");
+
 #[databases::database("pg")]
 struct DbConn(databases::diesel::PgConnection);
+
+fn run_db_migrations(rocket: rocket::Rocket) -> Result<rocket::Rocket, rocket::Rocket> {
+    let conn = DbConn::get_one(&rocket).expect("database connection");
+    match embedded_migrations::run(&*conn) {
+        Ok(()) => Ok(rocket),
+        Err(_) => Err(rocket),
+    }
+}
 
 fn main() {
     let mut settings = config::Config::default();
@@ -45,7 +59,11 @@ fn main() {
         .finalize()
         .unwrap();
 
-    rocket::custom(config).mount("/", routes![hello]).launch();
+    rocket::custom(config)
+        .attach(DbConn::fairing())
+        .attach(AdHoc::on_attach("Database Migrations", run_db_migrations))
+        .mount("/", routes![hello])
+        .launch();
 }
 
 #[get("/")]

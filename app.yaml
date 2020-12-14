@@ -6,7 +6,7 @@ metadata:
     app: product-delivery-stage
 spec:
   ports:
-    - port: 3000
+    - port: 80
       protocol: TCP
   selector:
     app: product-delivery-stage
@@ -30,7 +30,7 @@ spec:
           image: docker.pkg.github.com/elhemist/product-delivery/product-delivery-backend:latest
           imagePullPolicy: Always
           ports:
-            - containerPort: 3000
+            - containerPort: 80
           volumeMounts:
             - name: settings-volume
               mountPath: /Settings.toml

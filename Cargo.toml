@@ -8,6 +8,7 @@ edition = "2018"
 
 [dependencies]
 diesel = { version = "1.4.4", features = ["postgres", "numeric"] }
+diesel_migrations = "1.4.0"
 dotenv = "0.15.0"
 diesel-derive-enum = { version = "1", features = ["postgres"] }
 bigdecimal = { version = "0.1.2", features = ["serde"] }
