@@ -1,0 +1,2 @@
+port = 8080
+db = "postgres://postgres:docker@localhost/postgres"
