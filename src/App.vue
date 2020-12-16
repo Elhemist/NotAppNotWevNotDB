@@ -8,8 +8,9 @@
         <b-navbar-nav>
           <b-nav-item href="#">Главная</b-nav-item>
           <b-nav-item href="#">Заказы</b-nav-item>
-          <b-nav-item to="/products/products">Products</b-nav-item>
+          <b-nav-item to="/products">Products</b-nav-item>
           <b-nav-item to="/auth/signup">Регистрация</b-nav-item>
+          <b-nav-item v-if="CART.length">ня<cart/></b-nav-item>
         </b-navbar-nav>
       </b-navbar>
     </header>
@@ -30,11 +31,19 @@
   </div>
 </template>
 <script>
+import Cart from './components/cart/cart.vue';
+import {mapGetters} from 'vuex'
 export default {
   name: 'App',
+  computed:{
+    ...mapGetters([
+      'CART'
+    ])
+  }
 };
 
-</script>
+
+    Cart</script>
 <style>
 .navbar,
 .navbar-brand {

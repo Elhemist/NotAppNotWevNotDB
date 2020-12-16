@@ -4,7 +4,7 @@ import SignIn from '@/components/auth/SignIn';
 import SignUp from '@/components/auth/SignUp';
 import Lolce from '@/components/start/lolce';
 import Products from '@/components/products/products';
-
+import Cart from '@/components/cart/cart'
 Vue.use(Router);
 
 export default new Router({
@@ -25,9 +25,15 @@ export default new Router({
       component: Lolce,
     },
     {
-      path: '/products/products',
+      path: '/products',
       name: 'products',
       component: Products,
     },
+    {
+      path: '/cart',
+      name: 'cart',
+      component: Cart,
+      props: true
+    }
   ],
 });
