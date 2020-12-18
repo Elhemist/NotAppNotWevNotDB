@@ -11,7 +11,31 @@ pub struct Product {
     pub available: i32,
 }
 
-#[derive(Debug, DbEnum)]
+#[derive(Serialize, Queryable)]
+pub struct User {
+    pub id: i32,
+    pub phone: String,
+    #[serde(skip_serializing)]
+    pub password_hash: String,
+    pub role: UserRole,
+    pub first_name: Option<String>,
+    pub middle_name: Option<String>,
+    pub last_name: Option<String>,
+}
+
+use super::schema::users;
+#[derive(Insertable)]
+#[table_name = "users"]
+pub struct NewUser {
+    pub phone: String,
+    pub password_hash: String,
+    pub role: UserRole,
+    pub first_name: Option<String>,
+    pub middle_name: Option<String>,
+    pub last_name: Option<String>,
+}
+
+#[derive(Debug, DbEnum, Serialize)]
 #[DieselType = "User_role"]
 pub enum UserRole {
     Client,

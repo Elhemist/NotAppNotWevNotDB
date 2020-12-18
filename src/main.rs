@@ -86,7 +86,7 @@ fn main() {
         .attach(DbConn::fairing())
         .attach(AdHoc::on_attach("Database Migrations", run_db_migrations))
         .attach(cors)
-        .mount("/", routes![hello])
+        .mount("/api/", routes![hello, new])
         .launch();
 }
 
@@ -98,4 +98,125 @@ fn hello(conn: DbConn) -> Json<Vec<models::Product>> {
         .expect("Error loading posts");
 
     Json(our_products)
+}
+
+use serde::{Deserialize, Serialize};
+
+#[derive(Deserialize, Debug)]
+pub struct RegisterUserRequest {
+    phone: i64,
+    password: String,
+    first_name: Option<String>,
+    middle_name: Option<String>,
+    last_name: Option<String>,
+}
+
+// use hex_literal::hex;
+use sha3::{Digest, Sha3_256};
+
+use rocket::http::Status;
+use rocket::response::status;
+
+#[post("/users/register", format = "json", data = "<input>")]
+fn new(input: Json<RegisterUserRequest>, conn: DbConn) -> ApiResult<models::User> {
+    if input.0.phone > 9_999_999_999 || input.0.phone < 8_000_000_000 {
+        return Err(ApiError::InvalidPhoneNumber);
+    };
+
+    let mut hasher = Sha3_256::new();
+    hasher.update(input.0.password.as_bytes());
+
+    let result = hasher.finalize();
+    let password_hash = hex::encode(result);
+
+    let new_user = models::NewUser {
+        phone: input.0.phone.to_string(),
+        role: models::UserRole::Client,
+        first_name: input.0.first_name,
+        middle_name: input.0.middle_name,
+        last_name: input.0.last_name,
+        password_hash,
+    };
+
+    let user: models::User = match diesel::insert_into(schema::users::table)
+        .values(&new_user)
+        .get_result(&*conn)
+    {
+        Ok(user) => user,
+        Err(err) => {
+            if let DieselError::DatabaseError(DieselErrorKind::UniqueViolation, _) = err {
+                return Err(ApiError::PhoneAlreadyInUse);
+            };
+
+            return Err(ApiError::from(err));
+        }
+    };
+
+    Ok(Json(user))
+}
+
+use diesel::result::DatabaseErrorKind as DieselErrorKind;
+use diesel::result::Error as DieselError;
+use rocket::response::{Responder, Response};
+
+#[derive(Debug)]
+pub enum ApiError {
+    DieselError,
+    UnknownError,
+    InvalidPhoneNumber,
+    PhoneAlreadyInUse,
+}
+
+#[derive(Serialize)]
+pub struct ErrorResponse {
+    pub error: bool,
+    pub code: String,
+    pub description: String,
+}
+
+pub type ApiResult<T> = Result<Json<T>, ApiError>;
+
+impl<'r> Responder<'r> for ApiError {
+    fn respond_to(self, _: &rocket::Request) -> rocket::response::Result<'r> {
+        let (code, description) = match self {
+            ApiError::DieselError => (
+                String::from("DATABASE_ERROR"),
+                String::from("Unknown error with database"),
+            ),
+            ApiError::InvalidPhoneNumber => (
+                String::from("INVALID_PHONE_NUMBER"),
+                String::from("Invalid phone number"),
+            ),
+            ApiError::UnknownError => (
+                String::from("UNKNOWN_ERROR"),
+                String::from("Unknown error. ¯\\_(ツ)_/¯"),
+            ),
+            ApiError::PhoneAlreadyInUse => (
+                String::from("PHONE_ALREADY_IN_USE"),
+                String::from("Phone already in use"),
+            ),
+        };
+
+        let err = ErrorResponse {
+            error: true,
+            code,
+            description,
+        };
+
+        let json_string = match serde_json::to_string(&err) {
+            Ok(json_string) => json_string,
+            Err(_) => return Response::build().status(Status::BadGateway).ok(),
+        };
+
+        Response::build()
+            .status(Status::BadRequest)
+            .sized_body(std::io::Cursor::new(json_string))
+            .ok()
+    }
+}
+
+impl From<DieselError> for ApiError {
+    fn from(error: DieselError) -> ApiError {
+        ApiError::DieselError
+    }
 }
