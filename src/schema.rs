@@ -1,6 +1,9 @@
 table! {
     use diesel::sql_types::*;
-    use crate::models::*;
+    use crate::models::courier::*;
+    use crate::models::order::*;
+    use crate::models::transport::*;
+    use crate::models::user::*;
 
     addresses (id) {
         id -> Int4,
@@ -13,7 +16,10 @@ table! {
 
 table! {
     use diesel::sql_types::*;
-    use crate::models::*;
+    use crate::models::courier::*;
+    use crate::models::order::*;
+    use crate::models::transport::*;
+    use crate::models::user::*;
 
     courier (user_id) {
         user_id -> Int4,
@@ -24,7 +30,10 @@ table! {
 
 table! {
     use diesel::sql_types::*;
-    use crate::models::*;
+    use crate::models::courier::*;
+    use crate::models::order::*;
+    use crate::models::transport::*;
+    use crate::models::user::*;
 
     orders (id) {
         id -> Int4,
@@ -39,7 +48,10 @@ table! {
 
 table! {
     use diesel::sql_types::*;
-    use crate::models::*;
+    use crate::models::courier::*;
+    use crate::models::order::*;
+    use crate::models::transport::*;
+    use crate::models::user::*;
 
     product_category (id) {
         id -> Int4,
@@ -49,7 +61,10 @@ table! {
 
 table! {
     use diesel::sql_types::*;
-    use crate::models::*;
+    use crate::models::courier::*;
+    use crate::models::order::*;
+    use crate::models::transport::*;
+    use crate::models::user::*;
 
     products (id) {
         id -> Int4,
@@ -64,7 +79,10 @@ table! {
 
 table! {
     use diesel::sql_types::*;
-    use crate::models::*;
+    use crate::models::courier::*;
+    use crate::models::order::*;
+    use crate::models::transport::*;
+    use crate::models::user::*;
 
     products_in_orders (id) {
         id -> Int4,
@@ -76,7 +94,10 @@ table! {
 
 table! {
     use diesel::sql_types::*;
-    use crate::models::*;
+    use crate::models::courier::*;
+    use crate::models::order::*;
+    use crate::models::transport::*;
+    use crate::models::user::*;
 
     transport (id) {
         id -> Int4,
@@ -88,7 +109,10 @@ table! {
 
 table! {
     use diesel::sql_types::*;
-    use crate::models::*;
+    use crate::models::courier::*;
+    use crate::models::order::*;
+    use crate::models::transport::*;
+    use crate::models::user::*;
 
     users (id) {
         id -> Int4,
@@ -98,6 +122,7 @@ table! {
         first_name -> Nullable<Text>,
         middle_name -> Nullable<Text>,
         last_name -> Nullable<Text>,
+        session_id -> Nullable<Text>,
     }
 }
 
