@@ -1,6 +1,6 @@
 FROM rustlang/rust:nightly-buster as builder
 
-WORKDIR /product-delivery
+WORKDIR /product_delivery
 COPY ./Cargo.toml ./Cargo.toml
 COPY ./src ./src
 COPY ./migrations ./migrations
@@ -17,6 +17,6 @@ RUN apt-get update \
     && apt-get install -y ca-certificates tzdata libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /product-delivery/target/release/product-delivery .
+COPY --from=builder /product_delivery/target/release/product_delivery .
 
-ENTRYPOINT ["./product-delivery"]
+ENTRYPOINT ["./product_delivery"]
