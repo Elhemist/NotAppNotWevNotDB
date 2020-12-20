@@ -14,7 +14,7 @@ pub enum Error {
     PhoneAlreadyInUse,
     UserNotFound,
     InvalidPassword,
-    InvalidSessionID,
+    InvalidSessionId,
 }
 
 impl<'r> Responder<'r> for Error {

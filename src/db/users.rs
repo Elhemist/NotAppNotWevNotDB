@@ -81,3 +81,35 @@ pub fn login(conn: &PgConnection, phone: String, password: String) -> Result<Use
 fn create_session_id() -> String {
     thread_rng().sample_iter(&Alphanumeric).take(30).collect()
 }
+
+pub fn logout(conn: &PgConnection, user_id: i32) -> Result<(), Error> {
+    diesel::update(schema::users::table.find(user_id))
+        .set(schema::users::session_id.eq::<Option<String>>(None))
+        .execute(conn)
+        .map_err(|_| Error::Unknown)
+        .map(|_| ())
+}
+
+pub fn user_by_session_id(conn: &PgConnection, session_id: String) -> Result<User, Error> {
+    let user = match schema::users::table
+        .filter(schema::users::session_id.eq(session_id))
+        .limit(1)
+        .load::<User>(conn)
+    {
+        Ok(mut user) => {
+            if let Some(user) = user.pop() {
+                user
+            } else {
+                return Err(Error::InvalidSessionId);
+            }
+        }
+        Err(error) => {
+            if let DieselError::NotFound = error {
+                return Err(Error::InvalidSessionId);
+            }
+            return Err(Error::Unknown);
+        }
+    };
+
+    Ok(user)
+}

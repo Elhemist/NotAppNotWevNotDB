@@ -82,7 +82,7 @@ pub fn rocket(port: u16, db: &str) -> rocket::Rocket {
             routes![
                 routes::users::post_users,
                 routes::users::post_users_login,
-                // routes::users::post_users_logout
+                routes::users::post_users_logout
             ],
         )
 }
