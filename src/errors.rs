@@ -17,10 +17,23 @@ pub enum Error {
     InvalidSessionId,
 }
 
+impl Error {
+    pub fn status(&self) -> Status {
+        match self {
+            Error::InvalidPhoneNumber
+            | Error::PhoneAlreadyInUse
+            | Error::UserNotFound
+            | Error::InvalidPassword => Status::BadRequest,
+            Error::InvalidSessionId => Status::Unauthorized,
+            _ => Status::BadGateway,
+        }
+    }
+}
+
 impl<'r> Responder<'r> for Error {
     fn respond_to(self, req: &Request) -> rocket::response::Result<'r> {
         status::Custom(
-            Status::BadGateway,
+            self.status(),
             Json(json!(response::ResponseData::<()> {
                 error: true,
                 code: json!(self),

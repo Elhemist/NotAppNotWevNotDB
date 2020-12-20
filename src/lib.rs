@@ -80,6 +80,7 @@ pub fn rocket(port: u16, db: &str) -> rocket::Rocket {
         .mount(
             "/api/",
             routes![
+                routes::users::get_user,
                 routes::users::post_users,
                 routes::users::post_users_login,
                 routes::users::post_users_logout
