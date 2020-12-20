@@ -4,7 +4,7 @@ use crate::errors::Error;
 use crate::models::user;
 use crate::response::ResponseData;
 use rocket::http::Status;
-use rocket::request::Request;
+use rocket::request::{Outcome, Request};
 
 use rocket::request::FromRequest;
 use rocket_contrib::json::{Json, JsonValue};
@@ -68,21 +68,47 @@ pub fn post_users_login(login_data: Json<LoginData>, conn: db::Conn) -> Result<J
     Ok(json!(ResponseData::success(Some(user))))
 }
 
-// #[derive(Debug)]
-// pub struct ApiKey(String);
+#[derive(Debug)]
+pub struct AuthorizedUser(user::User);
 
-// impl<'a, 'r> FromRequest<'a, 'r> for ApiKey {
-//     type Error = crate::errors::Error;
+impl<'a, 'r> FromRequest<'a, 'r> for AuthorizedUser {
+    type Error = crate::errors::Error;
 
-//     fn from_request(request: &'a Request<'r>) -> rocket::request::Outcome<Self, Self::Error> {
-//         let keys: Vec<_> = request.headers().get("x-session-id").collect();
-//         rocket::request::Outcome::Failure((Status::BadRequest, Error::InvalidSessionID))
-//     }
-// }
+    fn from_request(request: &'a Request<'r>) -> Outcome<Self, Self::Error> {
+        let conn = match db::Conn::from_request(request) {
+            Outcome::Success(conn) => conn,
+            _ => {
+                return Outcome::Failure((Status::Unauthorized, Error::InvalidSessionId));
+            }
+        };
 
-// #[post("/users/logout")]
-// pub fn post_users_logout(conn: db::Conn, key: ApiKey) -> Result<JsonValue, Error> {
-//     println!("{:?}", key);
+        let sessions: Vec<_> = request.headers().get("x-session-id").collect();
+        if sessions.len() != 1 {
+            return Outcome::Failure((Status::Unauthorized, Error::InvalidSessionId));
+        }
 
-//     Ok(json!(()))
-// }
+        let user = match sessions.first() {
+            Some(session_id) => match users::user_by_session_id(&conn, session_id.to_string()) {
+                Ok(user) => user,
+                Err(e) => {
+                    return Outcome::Failure((Status::Unauthorized, e));
+                }
+            },
+            _ => return Outcome::Failure((Status::Unauthorized, Error::InvalidSessionId)),
+        };
+
+        Outcome::Success(AuthorizedUser(user))
+    }
+}
+
+#[post("/users/logout")]
+pub fn post_users_logout(
+    conn: db::Conn,
+    authorized_user: Result<AuthorizedUser, Error>,
+) -> Result<JsonValue, Error> {
+    let authorized_user = authorized_user?;
+
+    users::logout(&conn, authorized_user.0.id)?;
+
+    Ok(json!(ResponseData::success(Some(()))))
+}
