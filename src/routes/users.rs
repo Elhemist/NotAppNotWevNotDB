@@ -28,6 +28,47 @@ pub struct LoginData {
     password: String,
 }
 
+#[derive(Debug)]
+pub struct AuthorizedUser(user::User);
+
+impl<'a, 'r> FromRequest<'a, 'r> for AuthorizedUser {
+    type Error = crate::errors::Error;
+
+    fn from_request(request: &'a Request<'r>) -> Outcome<Self, Self::Error> {
+        let conn = match db::Conn::from_request(request) {
+            Outcome::Success(conn) => conn,
+            _ => {
+                return Outcome::Failure((Status::Unauthorized, Error::InvalidSessionId));
+            }
+        };
+
+        let sessions: Vec<_> = request.headers().get("x-session-id").collect();
+        if sessions.len() != 1 {
+            return Outcome::Failure((Status::Unauthorized, Error::InvalidSessionId));
+        }
+
+        let user = match sessions.first() {
+            Some(session_id) => match users::user_by_session_id(&conn, session_id.to_string()) {
+                Ok(user) => user,
+                Err(e) => {
+                    return Outcome::Failure((Status::Unauthorized, e));
+                }
+            },
+            _ => return Outcome::Failure((Status::Unauthorized, Error::InvalidSessionId)),
+        };
+
+        Outcome::Success(AuthorizedUser(user))
+    }
+}
+
+#[get("/user")]
+pub fn get_user(authorized_user: Result<AuthorizedUser, Error>) -> Result<JsonValue, Error> {
+    let mut authorized_user = authorized_user?;
+    authorized_user.0.session_id = None;
+
+    Ok(json!(ResponseData::success(Some(authorized_user.0))))
+}
+
 #[post("/users", format = "json", data = "<new_user_data>")]
 /// Create new user
 pub fn post_users(new_user_data: Json<NewUserData>, conn: db::Conn) -> Result<JsonValue, Error> {
@@ -66,39 +107,6 @@ pub fn post_users_login(login_data: Json<LoginData>, conn: db::Conn) -> Result<J
     let user = users::login(&conn, login_data.phone.to_string(), login_data.password)?;
 
     Ok(json!(ResponseData::success(Some(user))))
-}
-
-#[derive(Debug)]
-pub struct AuthorizedUser(user::User);
-
-impl<'a, 'r> FromRequest<'a, 'r> for AuthorizedUser {
-    type Error = crate::errors::Error;
-
-    fn from_request(request: &'a Request<'r>) -> Outcome<Self, Self::Error> {
-        let conn = match db::Conn::from_request(request) {
-            Outcome::Success(conn) => conn,
-            _ => {
-                return Outcome::Failure((Status::Unauthorized, Error::InvalidSessionId));
-            }
-        };
-
-        let sessions: Vec<_> = request.headers().get("x-session-id").collect();
-        if sessions.len() != 1 {
-            return Outcome::Failure((Status::Unauthorized, Error::InvalidSessionId));
-        }
-
-        let user = match sessions.first() {
-            Some(session_id) => match users::user_by_session_id(&conn, session_id.to_string()) {
-                Ok(user) => user,
-                Err(e) => {
-                    return Outcome::Failure((Status::Unauthorized, e));
-                }
-            },
-            _ => return Outcome::Failure((Status::Unauthorized, Error::InvalidSessionId)),
-        };
-
-        Outcome::Success(AuthorizedUser(user))
-    }
 }
 
 #[post("/users/logout")]
