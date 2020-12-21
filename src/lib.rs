@@ -83,7 +83,8 @@ pub fn rocket(port: u16, db: &str) -> rocket::Rocket {
                 routes::users::get_user,
                 routes::users::post_users,
                 routes::users::post_users_login,
-                routes::users::post_users_logout
+                routes::users::post_users_logout,
+                routes::products::get_products,
             ],
         )
 }

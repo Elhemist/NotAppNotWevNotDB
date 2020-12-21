@@ -68,7 +68,7 @@ table! {
 
     products (id) {
         id -> Int4,
-        category -> Int4,
+        category_id -> Int4,
         name -> Text,
         description -> Text,
         price -> Numeric,
@@ -132,7 +132,7 @@ joinable!(courier -> users (user_id));
 joinable!(orders -> addresses (address_id));
 joinable!(orders -> courier (courier_id));
 joinable!(orders -> users (user_id));
-joinable!(products -> product_category (category));
+joinable!(products -> product_category (category_id));
 joinable!(products_in_orders -> orders (order_id));
 joinable!(products_in_orders -> products (product_id));
 

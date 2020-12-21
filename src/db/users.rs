@@ -1,8 +1,5 @@
+use crate::models::user::{User, UserRole};
 use crate::schema::users;
-use crate::{
-    errors,
-    models::user::{User, UserRole},
-};
 use crate::{errors::Error, schema};
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
