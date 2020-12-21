@@ -84,10 +84,23 @@ table! {
     use crate::models::transport::*;
     use crate::models::user::*;
 
-    products_in_orders (id) {
-        id -> Int4,
-        order_id -> Nullable<Int4>,
-        product_id -> Nullable<Int4>,
+    products_in_cart (user_id, product_id) {
+        user_id -> Int4,
+        product_id -> Int4,
+        quantity -> Int4,
+    }
+}
+
+table! {
+    use diesel::sql_types::*;
+    use crate::models::courier::*;
+    use crate::models::order::*;
+    use crate::models::transport::*;
+    use crate::models::user::*;
+
+    products_in_orders (order_id, product_id) {
+        order_id -> Int4,
+        product_id -> Int4,
         quantity -> Int4,
     }
 }
@@ -133,6 +146,8 @@ joinable!(orders -> addresses (address_id));
 joinable!(orders -> courier (courier_id));
 joinable!(orders -> users (user_id));
 joinable!(products -> product_category (category_id));
+joinable!(products_in_cart -> products (product_id));
+joinable!(products_in_cart -> users (user_id));
 joinable!(products_in_orders -> orders (order_id));
 joinable!(products_in_orders -> products (product_id));
 
@@ -142,6 +157,7 @@ allow_tables_to_appear_in_same_query!(
     orders,
     product_category,
     products,
+    products_in_cart,
     products_in_orders,
     transport,
     users,
