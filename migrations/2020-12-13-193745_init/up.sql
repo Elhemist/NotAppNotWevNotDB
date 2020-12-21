@@ -40,7 +40,7 @@ CREATE TABLE product_category (
 
 CREATE TABLE products (
     id SERIAL PRIMARY KEY,
-    category INTEGER REFERENCES product_category(id) ON DELETE CASCADE NOT NULL,
+    category_id INTEGER REFERENCES product_category(id) ON DELETE CASCADE NOT NULL,
     name TEXT NOT NULL,
     description TEXT NOT NULL,
     price NUMERIC NOT NULL,
