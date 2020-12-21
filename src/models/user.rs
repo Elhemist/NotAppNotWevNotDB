@@ -1,6 +1,8 @@
+use crate::schema::users;
 use serde::Serialize;
 
-#[derive(Serialize, Queryable, Debug)]
+#[derive(Identifiable, Serialize, Queryable, Debug)]
+#[table_name = "users"]
 pub struct User {
     pub id: i32,
     pub phone: String,
@@ -10,6 +12,7 @@ pub struct User {
     pub first_name: Option<String>,
     pub middle_name: Option<String>,
     pub last_name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub session_id: Option<String>,
 }
 

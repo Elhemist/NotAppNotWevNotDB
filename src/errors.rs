@@ -15,6 +15,7 @@ pub enum Error {
     UserNotFound,
     InvalidPassword,
     InvalidSessionId,
+    NotFound,
 }
 
 impl Error {
@@ -25,6 +26,7 @@ impl Error {
             | Error::UserNotFound
             | Error::InvalidPassword => Status::BadRequest,
             Error::InvalidSessionId => Status::Unauthorized,
+            Error::NotFound => Status::NotFound,
             _ => Status::BadGateway,
         }
     }

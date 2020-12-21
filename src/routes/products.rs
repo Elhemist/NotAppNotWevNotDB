@@ -10,3 +10,10 @@ pub fn get_products(conn: db::Conn) -> Result<JsonValue, Error> {
 
     Ok(json!(ResponseData::success(Some(all_products))))
 }
+
+#[get("/products/<id>")]
+pub fn get_product_by_id(conn: db::Conn, id: i32) -> Result<JsonValue, Error> {
+    let product = products::get(&conn, id)?;
+
+    Ok(json!(ResponseData::success(Some(product))))
+}

@@ -69,8 +69,8 @@ CREATE TABLE orders (
 );
 
 CREATE TABLE products_in_orders (
-    id SERIAL PRIMARY KEY,
     order_id INTEGER REFERENCES orders (id) ON DELETE RESTRICT,
     product_id INTEGER REFERENCES products (id) ON DELETE RESTRICT,
-    quantity INTEGER NOT NULL DEFAULT 1
+    quantity INTEGER NOT NULL DEFAULT 1,
+    PRIMARY KEY (order_id, product_id)
 );

@@ -110,3 +110,13 @@ pub fn user_by_session_id(conn: &PgConnection, session_id: String) -> Result<Use
 
     Ok(user)
 }
+
+pub fn user_by_id(conn: &PgConnection, id: i32) -> Result<User, Error> {
+    schema::users::table
+        .find(id)
+        .first::<User>(conn)
+        .map_err(|e| match e {
+            DieselError::NotFound => Error::NotFound,
+            _ => Error::DatabaseError,
+        })
+}
