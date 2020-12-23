@@ -18,7 +18,7 @@ pub fn get(
 ) -> Result<JsonValue, Error> {
     let authorized_user = authorized_user?;
 
-    let products = match cart::get_all(&conn, &authorized_user.0) {
+    let products = match cart::get(&conn, &authorized_user.0) {
         Ok(products) => products,
         Err(e) => return Err(e),
     }
