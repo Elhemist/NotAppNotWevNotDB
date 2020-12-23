@@ -15,10 +15,10 @@ extern crate rocket_contrib;
 #[macro_use]
 extern crate validator_derive;
 
-use rocket_cors::{AllowedHeaders, AllowedOrigins, Cors};
-
 use rocket::config::{Config, Environment, Value};
 use rocket::fairing::AdHoc;
+use rocket_contrib::serve::StaticFiles;
+use rocket_cors::{AllowedHeaders, AllowedOrigins, Cors};
 use std::collections::HashMap;
 
 mod db;
@@ -77,6 +77,7 @@ pub fn rocket(port: u16, db: &str) -> rocket::Rocket {
         .attach(db::Conn::fairing())
         .attach(AdHoc::on_attach("Database Migrations", run_db_migrations))
         .attach(cors_fairing())
+        .mount("/", StaticFiles::from("web"))
         .mount(
             "/api/",
             routes![
