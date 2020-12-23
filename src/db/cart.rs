@@ -1,11 +1,11 @@
+use crate::errors::Error;
 use crate::models::order::ProductsInCart;
 use crate::models::user::User;
 use crate::schema::products_in_cart;
-use crate::{errors::Error, schema};
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 
-pub fn get_all(conn: &PgConnection, user: &User) -> Result<Vec<(i32, i32)>, Error> {
+pub fn get(conn: &PgConnection, user: &User) -> Result<Vec<(i32, i32)>, Error> {
     ProductsInCart::belonging_to(user)
         .select((products_in_cart::product_id, products_in_cart::quantity))
         .load::<(i32, i32)>(conn)

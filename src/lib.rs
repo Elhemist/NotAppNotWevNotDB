@@ -77,7 +77,8 @@ pub fn rocket(port: u16, db: &str) -> rocket::Rocket {
         .attach(db::Conn::fairing())
         .attach(AdHoc::on_attach("Database Migrations", run_db_migrations))
         .attach(cors_fairing())
-        .mount("/", StaticFiles::from("web"))
+        .mount("/", StaticFiles::from("dist"))
+        .mount("/front", StaticFiles::from("web"))
         .mount(
             "/api/",
             routes![
@@ -90,6 +91,7 @@ pub fn rocket(port: u16, db: &str) -> rocket::Rocket {
                 routes::products::get_product_by_id,
                 routes::cart::get,
                 routes::cart::update,
+                routes::orders::get,
             ],
         )
 }
