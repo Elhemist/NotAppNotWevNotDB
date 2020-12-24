@@ -7,3 +7,5 @@ pub mod users;
 
 #[derive(Debug)]
 pub struct AuthorizedUser(user::User);
+#[derive(Debug)]
+pub struct AuthorizedAdmin(user::User);

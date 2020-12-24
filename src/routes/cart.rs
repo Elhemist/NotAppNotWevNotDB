@@ -50,3 +50,15 @@ pub fn update(
 
     Ok(json!(ResponseData::success(Some(()))))
 }
+
+#[delete("/cart")]
+pub fn clear(
+    conn: db::Conn,
+    authorized_user: Result<super::AuthorizedUser, Error>,
+) -> Result<JsonValue, Error> {
+    let authorized_user = authorized_user?.0;
+
+    cart::clear(&conn, &authorized_user)?;
+
+    Ok(json!(ResponseData::success(Some(()))))
+}
