@@ -12,9 +12,6 @@ extern crate rocket;
 #[macro_use]
 extern crate rocket_contrib;
 
-#[macro_use]
-extern crate validator_derive;
-
 use rocket::config::{Config, Environment, Value};
 use rocket::fairing::AdHoc;
 use rocket_contrib::serve::StaticFiles;
@@ -88,9 +85,13 @@ pub fn rocket(port: u16, db: &str) -> rocket::Rocket {
                 routes::users::post_users_logout,
                 routes::products::get_products,
                 routes::products::get_product_by_id,
+                routes::products::post_products,
                 routes::cart::get,
                 routes::cart::update,
+                routes::cart::clear,
                 routes::orders::get,
+                routes::orders::list,
+                routes::orders::create,
             ],
         )
 }

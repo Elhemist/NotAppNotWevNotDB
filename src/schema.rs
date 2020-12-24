@@ -1,4 +1,5 @@
 table! {
+    #[allow(unused_imports)]
     use diesel::sql_types::*;
     use crate::models::courier::*;
     use crate::models::order::*;
@@ -15,6 +16,7 @@ table! {
 }
 
 table! {
+    #[allow(unused_imports)]
     use diesel::sql_types::*;
     use crate::models::courier::*;
     use crate::models::order::*;
@@ -29,6 +31,7 @@ table! {
 }
 
 table! {
+    #[allow(unused_imports)]
     use diesel::sql_types::*;
     use crate::models::courier::*;
     use crate::models::order::*;
@@ -47,6 +50,7 @@ table! {
 }
 
 table! {
+    #[allow(unused_imports)]
     use diesel::sql_types::*;
     use crate::models::courier::*;
     use crate::models::order::*;
@@ -60,6 +64,7 @@ table! {
 }
 
 table! {
+    #[allow(unused_imports)]
     use diesel::sql_types::*;
     use crate::models::courier::*;
     use crate::models::order::*;
@@ -78,6 +83,7 @@ table! {
 }
 
 table! {
+    #[allow(unused_imports)]
     use diesel::sql_types::*;
     use crate::models::courier::*;
     use crate::models::order::*;
@@ -92,6 +98,7 @@ table! {
 }
 
 table! {
+    #[allow(unused_imports)]
     use diesel::sql_types::*;
     use crate::models::courier::*;
     use crate::models::order::*;
@@ -106,6 +113,7 @@ table! {
 }
 
 table! {
+    #[allow(unused_imports)]
     use diesel::sql_types::*;
     use crate::models::courier::*;
     use crate::models::order::*;
@@ -121,6 +129,7 @@ table! {
 }
 
 table! {
+    #[allow(unused_imports)]
     use diesel::sql_types::*;
     use crate::models::courier::*;
     use crate::models::order::*;

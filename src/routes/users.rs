@@ -10,10 +10,11 @@ use rocket::request::{Outcome, Request};
 use rocket_contrib::json::{Json, JsonValue};
 use serde::Deserialize;
 use sha3::{Digest, Sha3_256};
+use user::UserRole;
 
-use validator::Validate;
+use super::AuthorizedUser;
 
-#[derive(Deserialize, Validate)]
+#[derive(Deserialize)]
 pub struct NewUserData {
     phone: i64,
     password: String,
@@ -22,7 +23,7 @@ pub struct NewUserData {
     last_name: Option<String>,
 }
 
-#[derive(Deserialize, Validate)]
+#[derive(Deserialize)]
 pub struct LoginData {
     phone: i64,
     password: String,
@@ -58,6 +59,21 @@ impl<'a, 'r> FromRequest<'a, 'r> for super::AuthorizedUser {
     }
 }
 
+impl<'a, 'r> FromRequest<'a, 'r> for super::AuthorizedAdmin {
+    type Error = crate::errors::Error;
+
+    fn from_request(request: &'a Request<'r>) -> Outcome<Self, Self::Error> {
+        let user = AuthorizedUser::from_request(&request)?.0;
+
+        let user = match user.role {
+            UserRole::Admin => user,
+            _ => return Outcome::Failure((Status::Forbidden, Error::AccessDenied)),
+        };
+
+        Outcome::Success(super::AuthorizedAdmin(user))
+    }
+}
+
 #[get("/users/current")]
 pub fn get_current_user(
     authorized_user: Result<super::AuthorizedUser, Error>,
@@ -77,7 +93,6 @@ pub fn get_user_by_id(conn: db::Conn, id: i32) -> Result<JsonValue, Error> {
 }
 
 #[post("/users", format = "json", data = "<new_user_data>")]
-/// Create new user
 pub fn post_users(new_user_data: Json<NewUserData>, conn: db::Conn) -> Result<JsonValue, Error> {
     let new_user_data = new_user_data.into_inner();
 

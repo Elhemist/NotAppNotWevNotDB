@@ -1,10 +1,8 @@
+use crate::errors::Error;
 use crate::models::user::{User, UserRole};
 use crate::schema::users;
-use crate::{errors::Error, schema};
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
-use diesel::result::DatabaseErrorKind;
-use diesel::result::Error as DieselError;
 use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
 use sha3::{Digest, Sha3_256};
@@ -21,42 +19,16 @@ pub struct NewUser {
 }
 
 pub fn create(conn: &PgConnection, new_user: NewUser) -> Result<User, Error> {
-    match diesel::insert_into(users::table)
+    diesel::insert_into(users::table)
         .values(new_user)
         .get_result::<User>(conn)
-    {
-        Ok(user) => Ok(user),
-        Err(error) => {
-            if let DieselError::DatabaseError(DatabaseErrorKind::UniqueViolation, info) = error {
-                if info.constraint_name() == Some("unique_phone") {
-                    return Err(Error::PhoneAlreadyInUse);
-                }
-            }
-            Err(Error::Unknown)
-        }
-    }
+        .map_err(Error::from)
 }
 
 pub fn login(conn: &PgConnection, phone: String, password: String) -> Result<User, Error> {
-    let user = match schema::users::table
-        .filter(schema::users::phone.eq(phone))
-        .limit(1)
-        .load::<User>(conn)
-    {
-        Ok(mut user) => {
-            if let Some(user) = user.pop() {
-                user
-            } else {
-                return Err(Error::UserNotFound);
-            }
-        }
-        Err(error) => {
-            if let DieselError::NotFound = error {
-                return Err(Error::UserNotFound);
-            }
-            return Err(Error::Unknown);
-        }
-    };
+    let user = users::table
+        .filter(users::phone.eq(phone))
+        .first::<User>(conn)?;
 
     let mut hasher = Sha3_256::new();
     hasher.update(password);
@@ -67,10 +39,10 @@ pub fn login(conn: &PgConnection, phone: String, password: String) -> Result<Use
     }
 
     let session_id = create_session_id();
-    let user = diesel::update(schema::users::table.find(user.id))
-        .set(schema::users::session_id.eq(session_id))
+    let user = diesel::update(users::table.find(user.id))
+        .set(users::session_id.eq(session_id))
         .get_result::<User>(conn)
-        .map_err(|_| Error::Unknown)?;
+        .map_err(Error::from)?;
 
     Ok(user)
 }
@@ -80,43 +52,23 @@ fn create_session_id() -> String {
 }
 
 pub fn logout(conn: &PgConnection, user_id: i32) -> Result<(), Error> {
-    diesel::update(schema::users::table.find(user_id))
-        .set(schema::users::session_id.eq::<Option<String>>(None))
+    diesel::update(users::table.find(user_id))
+        .set(users::session_id.eq::<Option<String>>(None))
         .execute(conn)
-        .map_err(|_| Error::Unknown)
+        .map_err(Error::from)
         .map(|_| ())
 }
 
 pub fn user_by_session_id(conn: &PgConnection, session_id: String) -> Result<User, Error> {
-    let user = match schema::users::table
-        .filter(schema::users::session_id.eq(session_id))
-        .limit(1)
-        .load::<User>(conn)
-    {
-        Ok(mut user) => {
-            if let Some(user) = user.pop() {
-                user
-            } else {
-                return Err(Error::InvalidSessionId);
-            }
-        }
-        Err(error) => {
-            if let DieselError::NotFound = error {
-                return Err(Error::InvalidSessionId);
-            }
-            return Err(Error::Unknown);
-        }
-    };
-
-    Ok(user)
+    users::table
+        .filter(users::session_id.eq(session_id))
+        .first::<User>(conn)
+        .map_err(Error::from)
 }
 
 pub fn user_by_id(conn: &PgConnection, id: i32) -> Result<User, Error> {
-    schema::users::table
+    users::table
         .find(id)
         .first::<User>(conn)
-        .map_err(|e| match e {
-            DieselError::NotFound => Error::NotFound,
-            _ => Error::DatabaseError,
-        })
+        .map_err(Error::from)
 }
