@@ -1,8 +1,9 @@
+use crate::schema::addresses;
 use crate::schema::orders;
 use crate::schema::products_in_cart;
 use crate::schema::products_in_orders;
 use bigdecimal::BigDecimal;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, DbEnum, Serialize)]
 #[DieselType = "Order_status"]
@@ -17,12 +18,13 @@ pub enum OrderStatus {
 
 #[derive(Identifiable, Serialize, Associations, Queryable, Debug)]
 #[belongs_to(super::user::User)]
+#[belongs_to(Address)]
 #[table_name = "orders"]
 pub struct Order {
     pub id: i32,
     pub user_id: Option<i32>,
     pub courier_id: Option<i32>,
-    pub address_id: Option<i32>,
+    pub address_id: i32,
     pub status: OrderStatus,
     pub total_sum: BigDecimal,
     pub comment: Option<String>,
@@ -56,10 +58,34 @@ pub struct OrderInfo {
     pub status: OrderStatus,
     pub total_sum: BigDecimal,
     pub products: Vec<ProductInOrderInfo>,
+    pub street: String,
+    pub home: String,
+    pub apartment: Option<String>,
+    pub comment: Option<String>,
 }
 
 #[derive(Serialize, Debug)]
 pub struct ProductInOrderInfo {
     pub id: i32,
     pub quantity: i32,
+}
+
+#[derive(Identifiable, Associations, Queryable, Serialize, Deserialize, Debug)]
+#[table_name = "addresses"]
+#[belongs_to(super::user::User)]
+pub struct Address {
+    pub id: i32,
+    pub user_id: i32,
+    pub street: String,
+    pub home: String,
+    pub apartment: Option<String>,
+}
+
+#[derive(Insertable, Serialize, Deserialize, Debug)]
+#[table_name = "addresses"]
+pub struct NewAddress {
+    pub user_id: i32,
+    pub street: String,
+    pub home: String,
+    pub apartment: Option<String>,
 }
