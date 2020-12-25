@@ -1,5 +1,4 @@
 table! {
-    #[allow(unused_imports)]
     use diesel::sql_types::*;
     use crate::models::courier::*;
     use crate::models::order::*;
@@ -8,7 +7,7 @@ table! {
 
     addresses (id) {
         id -> Int4,
-        user_id -> Nullable<Int4>,
+        user_id -> Int4,
         street -> Text,
         home -> Text,
         apartment -> Nullable<Text>,
@@ -16,7 +15,6 @@ table! {
 }
 
 table! {
-    #[allow(unused_imports)]
     use diesel::sql_types::*;
     use crate::models::courier::*;
     use crate::models::order::*;
@@ -31,7 +29,6 @@ table! {
 }
 
 table! {
-    #[allow(unused_imports)]
     use diesel::sql_types::*;
     use crate::models::courier::*;
     use crate::models::order::*;
@@ -42,7 +39,7 @@ table! {
         id -> Int4,
         user_id -> Nullable<Int4>,
         courier_id -> Nullable<Int4>,
-        address_id -> Nullable<Int4>,
+        address_id -> Int4,
         status -> Order_status,
         total_sum -> Numeric,
         comment -> Nullable<Text>,
@@ -50,7 +47,6 @@ table! {
 }
 
 table! {
-    #[allow(unused_imports)]
     use diesel::sql_types::*;
     use crate::models::courier::*;
     use crate::models::order::*;
@@ -64,7 +60,6 @@ table! {
 }
 
 table! {
-    #[allow(unused_imports)]
     use diesel::sql_types::*;
     use crate::models::courier::*;
     use crate::models::order::*;
@@ -83,7 +78,6 @@ table! {
 }
 
 table! {
-    #[allow(unused_imports)]
     use diesel::sql_types::*;
     use crate::models::courier::*;
     use crate::models::order::*;
@@ -98,7 +92,6 @@ table! {
 }
 
 table! {
-    #[allow(unused_imports)]
     use diesel::sql_types::*;
     use crate::models::courier::*;
     use crate::models::order::*;
@@ -113,7 +106,6 @@ table! {
 }
 
 table! {
-    #[allow(unused_imports)]
     use diesel::sql_types::*;
     use crate::models::courier::*;
     use crate::models::order::*;
@@ -129,7 +121,6 @@ table! {
 }
 
 table! {
-    #[allow(unused_imports)]
     use diesel::sql_types::*;
     use crate::models::courier::*;
     use crate::models::order::*;

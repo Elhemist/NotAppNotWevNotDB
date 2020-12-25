@@ -23,6 +23,7 @@ mod errors;
 mod models;
 mod response;
 mod routes;
+#[allow(unused_imports)]
 mod schema;
 
 fn cors_fairing() -> Cors {
