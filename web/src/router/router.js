@@ -7,6 +7,7 @@ import vMainPage from '../components/main-page/v-main-page'
 import vProductPage from '../components/catalog/v-product-page'
 import vSignUp from '../components/auth/SignUp'
 import vSignIn from '../components/auth/SignIn'
+import vUser from '../components/humans/v-user'
 
 Vue.use(Router);
 
@@ -16,6 +17,10 @@ let router = new Router({
       path: '/',
       name: 'mainPage',
       component: vMainPage
+    },{
+      path: '/user',
+      name: 'v-user',
+      component: vUser
     },
     {
       path: '/register',

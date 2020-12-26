@@ -1,36 +1,36 @@
 <template>
   <div class='v-catalog-item'>
-    <p> nya</p>
+    <p> Продукт </p>
     <v-popup
         v-if="isInfoPopupVisible"
-        rightBtnTitle="Add to cart"
+        rightBtnTitle="Добавить в корзину"
         :popupTitle="product_data.name"
         @closePopup="closeInfoPopup"
         @rightBtnAction="addToCart"
     >
       <img class="v-catalog-item__image" :src="product_data.image_url" alt="img">
       <div>
-        <p class="v-catalog-item__name">{{product_data.name}}</p>
-        <p class="v-catalog-item__price">Price: {{product_data.price | toFix | formattedPrice}} Р.</p>
-        <p class="v-catalog-item__price">{{product_data.category_id}}</p>
+        <p class="v-catalog-item__name">Описание: {{product_data.description}}</p>
       </div>
     </v-popup>
-
-
-    <img class="v-catalog-item__image" :src="product_data.image_url" alt="img" @click="productClick">
+    <center>
+    <div class="im">
+      <img class="v-catalog-item__image " :src="product_data.image_url" alt="img" @click="productClick">
+    </div>
+    </center>
     <p class="v-catalog-item__name">{{product_data.name}}</p>
-    <p class="v-catalog-item__price">Price: {{product_data.price | toFix | formattedPrice}}</p>
+    <p class="v-catalog-item__price">Стоимость: {{product_data.price | toFix | formattedPrice}}</p>
     <button
         class="v-catalog-item__show-info"
         @click="showPopupInfo"
     >
-      Show info
+      Подробная информация
     </button>
     <br>
     <button
         class="v-catalog-item__add_to_cart_btn btn"
         @click="addToCart"
-    >Add to cart
+    > Добавить в корзину 
     </button>
   </div>
 </template>
@@ -65,7 +65,7 @@
     computed: {},
     methods: {
       productClick() {
-        this.$emit('productClick', this.product_data.article)
+        this.$emit('productClick', this.product_data.id)
       },
       showPopupInfo() {
         this.isInfoPopupVisible = true;
@@ -86,12 +86,25 @@
 <style lang="scss">
   .v-catalog-item {
     flex-basis: 25%;
-    box-shadow: 0 0 8px 0 #e0e0e0;
+    border-radius: 10px;
+    box-shadow: 0 0 8px 0 #969595;
     padding: $padding*2;
+    background: rgb(190, 190, 190);
     margin-bottom: $margin*2;
     min-width: 280px;
     &__image {
       width: 100px;
     }
+  }
+  .v-catalog-item__show-info{
+    margin-bottom: $margin;
+    background: #9b9999;
+  }
+  .v-catalog-item__add_to_cart_btn{
+    width: 202.6px;
+  }
+  .im{
+    width: 100px;
+    height: 100px;
   }
 </style>

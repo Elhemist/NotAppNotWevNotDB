@@ -1,14 +1,15 @@
 <template>
   <div class='v-product-page'>
-    <img v-if="product.image" class="v-catalog-item__image" :src="product_data.image_url"
-         alt="img">
-    <p>Product name: {{product.name}}</p>
-    <p>Article: {{product.article}}</p>
-    <p>Price: {{product.price | toFix | formattedPrice}}</p>
+    <img class="v-catalog-item__image" :src="product.image_url" alt="img">
+    <p>Наименование продукта: {{product.name}}</p>
+    <p>id продукта: {{product.id}}</p>
+    <p>Стоимость: {{product.price | toFix | formattedPrice}}</p>
+    <p>Описание: {{product.description}}</p>
+    
     <button
         class="v-catalog-item__add_to_cart_btn btn"
         @click="addToCart"
-    >Add to cart
+    >Добавить в корзину
     </button>
   </div>
 </template>
@@ -36,7 +37,7 @@
         let result = {}
         let vm = this;
         this.PRODUCTS.find(function (item) {
-          if (item.article === vm.$route.query.product) {
+          if (item.id === vm.$route.query.product) {
             result = item;
           }
         })
@@ -49,7 +50,11 @@
         'ADD_TO_CART'
       ]),
       addToCart(data) {
-        this.ADD_TO_CART(data)
+        
+        console.log(this.product)
+        console.log('data')
+        console.log(data)
+        this.ADD_TO_CART(this.product)
           .then(() => {
             let timeStamp = Date.now().toLocaleString();
             this.messages.unshift(
@@ -67,5 +72,9 @@
 </script>
 
 <style scoped>
-
+.v-product-page{
+  background: bisque;
+  margin: 20%;
+  padding: 10px;
+}
 </style>
