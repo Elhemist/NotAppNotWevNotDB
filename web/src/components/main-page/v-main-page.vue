@@ -1,11 +1,16 @@
 <template>
   <div class='v-main-page'>
-    <h1>Online-shop</h1>
+    <h1>Отличный онлайн сервис по доставке продуктов</h1>
     <p>
+      
       <router-link :to="{name: 'catalog'}">
-        to Catalog
+        Приветствую тебя покупатель!
       </router-link>
+      
     </p>
+    <h1>
+        Купи
+      </h1>
   </div>
 </template>
 
