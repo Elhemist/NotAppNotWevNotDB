@@ -55,6 +55,7 @@ pub struct ProductsInOrder {
 #[derive(Serialize, Debug)]
 pub struct OrderInfo {
     pub id: i32,
+    pub user_id: Option<i32>,
     pub status: OrderStatus,
     pub total_sum: BigDecimal,
     pub products: Vec<ProductInOrderInfo>,

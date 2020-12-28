@@ -1,14 +1,12 @@
 use rand::seq::SliceRandom;
 use std::collections::HashMap;
 
+use crate::models::order::{
+    Address, Order, OrderInfo, OrderStatus, ProductInOrderInfo, ProductsInOrder,
+};
 use crate::models::product::Product;
 use crate::models::user::User;
-use crate::models::{
-    courier::Courier,
-    order::{Address, Order, OrderInfo, OrderStatus, ProductInOrderInfo, ProductsInOrder},
-};
 use crate::schema::addresses;
-use crate::schema::courier;
 use crate::schema::orders;
 use crate::schema::products;
 use crate::schema::products_in_orders;
@@ -100,6 +98,7 @@ pub fn create(
 
         let info = OrderInfo {
             id: new_order.id,
+            user_id: new_order.user_id,
             status: new_order.status,
             total_sum: new_order.total_sum,
             products: products_in_order_info,
@@ -131,6 +130,7 @@ pub fn get(conn: &PgConnection, id: i32) -> Result<OrderInfo, Error> {
 
     let info = OrderInfo {
         id: order.id,
+        user_id: order.user_id,
         status: order.status,
         total_sum: order.total_sum,
         products: products_in_order_info,
@@ -181,6 +181,7 @@ pub fn history(conn: &PgConnection, user: &User) -> Result<Vec<OrderInfo>, Error
         .into_iter()
         .map(|(order, products)| OrderInfo {
             id: order.id,
+            user_id: order.user_id,
             status: order.status,
             total_sum: order.total_sum,
             products,
@@ -241,6 +242,7 @@ pub fn global_history(conn: &PgConnection) -> Result<Vec<OrderInfo>, Error> {
         .into_iter()
         .map(|(order, products)| OrderInfo {
             id: order.id,
+            user_id: order.user_id,
             status: order.status,
             total_sum: order.total_sum,
             products,
@@ -322,6 +324,7 @@ pub fn list_orders_for_courier(conn: &PgConnection, user: &User) -> Result<Vec<O
         .into_iter()
         .map(|(order, products)| OrderInfo {
             id: order.id,
+            user_id: order.user_id,
             status: order.status,
             total_sum: order.total_sum,
             products,
