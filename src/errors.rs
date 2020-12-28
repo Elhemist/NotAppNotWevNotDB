@@ -19,6 +19,7 @@ pub enum Error {
     NotFound,
     CartIsEmpty,
     AccessDenied,
+    Empty,
 }
 
 impl Error {
@@ -32,6 +33,7 @@ impl Error {
             Error::InvalidSessionId => Status::Unauthorized,
             Error::AccessDenied => Status::Forbidden,
             Error::NotFound => Status::NotFound,
+            Error::Empty => Status::NoContent,
             _ => Status::BadGateway,
         }
     }

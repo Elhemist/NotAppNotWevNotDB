@@ -9,3 +9,6 @@ pub mod users;
 pub struct AuthorizedUser(user::User);
 #[derive(Debug)]
 pub struct AuthorizedAdmin(user::User);
+
+#[derive(Debug)]
+pub struct AuthorizedCourier(user::User);

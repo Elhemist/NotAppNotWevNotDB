@@ -25,7 +25,6 @@ pub fn post_products(
     new_product_data: Json<NewProduct>,
     conn: db::Conn,
 ) -> Result<JsonValue, Error> {
-    println!("{:?}", authorized_admin);
     let _ = authorized_admin?.0;
 
     let new_product = products::create(&conn, new_product_data.0)?;
