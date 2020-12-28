@@ -16,7 +16,7 @@
         <slot></slot>
       </div>
       <div class="v-popup__footer">
-        <button class="close_modal" @click="closePopup">Close</button>
+        <button class="close_modal" @click="closePopup">Закрыть</button>
         <button
             class="submit_btn"
             @click="rightBtnAction"
@@ -76,7 +76,10 @@
     bottom: 0;
   }
   .v-popup {
+    
+      border-radius: 10px;
     padding: 16px;
+    margin: 15%;
     position: fixed;
     top: 50px;
     width: 400px;
@@ -97,11 +100,13 @@
       padding: 8px;
       color: #ffffff;
       background: #26ae68;
+      border-radius: 400px;
     }
     .close_modal {
+      border-radius: 400px;
       padding: 8px;
       color: #ffffff;
-      background: red;
+      background: rgb(112, 15, 15);
     }
   }
 </style>

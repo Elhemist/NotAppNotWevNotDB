@@ -4,7 +4,7 @@
     <div class="v-cart-item__info">
       <p>{{cart_item_data.name}}</p>
       <p>{{cart_item_data.price | toFix | formattedPrice}}</p>
-      <p>{{cart_item_data.article}}</p>
+      <p>{{cart_item_data.id}}</p>
     </div>
     <div class="v-cart-item__quantity">
       <p>Qty:</p>
@@ -14,7 +14,7 @@
         <span class="quantity__btn" @click="incrementItem">+</span>
       </span>
     </div>
-    <button @click="deleteFromCart">Delete</button>
+    <button @click="deleteFromCart">Удалить</button>
   </div>
 </template>
 

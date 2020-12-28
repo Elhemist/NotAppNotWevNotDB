@@ -39,6 +39,8 @@ export default {
       // сохраняем токен
       console.log(token);
       localStorage.setItem('token', token);
+      
+      this.$router.push('/catalog')
     }
   }
 };

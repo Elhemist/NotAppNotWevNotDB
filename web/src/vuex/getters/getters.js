@@ -11,6 +11,9 @@ export default  {
   PRODUCTS(state) {
     return state.products;
   },
+  ORDERS(state) {
+    return state.orders;
+  },
   CART(state) {
     return state.cart;
   }
