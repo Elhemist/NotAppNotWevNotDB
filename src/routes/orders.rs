@@ -47,7 +47,13 @@ pub fn list(
 ) -> Result<JsonValue, Error> {
     let authorized_user = authorized_user?.0;
 
-    let orders_info = orders::history(&conn, &authorized_user)?;
+    let orders_info = match authorized_user.role {
+        crate::models::user::UserRole::Client => orders::history(&conn, &authorized_user),
+        crate::models::user::UserRole::Admin => orders::global_history(&conn),
+        crate::models::user::UserRole::Courier => {
+            orders::list_orders_for_courier(&conn, &authorized_user)
+        }
+    }?;
 
     Ok(json!(ResponseData::success(Some(orders_info))))
 }
@@ -55,6 +61,18 @@ pub fn list(
 #[get("/orders/<id>")]
 pub fn get(conn: db::Conn, id: i32) -> Result<JsonValue, Error> {
     let order_info = orders::get(&conn, id)?;
+
+    Ok(json!(ResponseData::success(Some(order_info))))
+}
+
+#[post("/orders/pick")]
+pub fn pick(
+    conn: db::Conn,
+    authorized_courier: Result<super::AuthorizedCourier, Error>,
+) -> Result<JsonValue, Error> {
+    let authorized_courier = authorized_courier?.0;
+
+    let order_info = orders::pick_order_for_courier(&conn, &authorized_courier)?;
 
     Ok(json!(ResponseData::success(Some(order_info))))
 }

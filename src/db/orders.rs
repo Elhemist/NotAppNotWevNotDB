@@ -1,11 +1,14 @@
+use rand::seq::SliceRandom;
 use std::collections::HashMap;
 
-use crate::models::order::{
-    Address, Order, OrderInfo, OrderStatus, ProductInOrderInfo, ProductsInOrder,
-};
 use crate::models::product::Product;
 use crate::models::user::User;
+use crate::models::{
+    courier::Courier,
+    order::{Address, Order, OrderInfo, OrderStatus, ProductInOrderInfo, ProductsInOrder},
+};
 use crate::schema::addresses;
+use crate::schema::courier;
 use crate::schema::orders;
 use crate::schema::products;
 use crate::schema::products_in_orders;
@@ -142,6 +145,147 @@ pub fn get(conn: &PgConnection, id: i32) -> Result<OrderInfo, Error> {
 
 pub fn history(conn: &PgConnection, user: &User) -> Result<Vec<OrderInfo>, Error> {
     let user_orders = Order::belonging_to(user).load::<Order>(conn)?;
+
+    let products = ProductsInOrder::belonging_to(&user_orders)
+        .load::<ProductsInOrder>(conn)?
+        .grouped_by(&user_orders)
+        .iter()
+        .map(|products| {
+            products
+                .iter()
+                .map(|product| ProductInOrderInfo {
+                    id: product.product_id,
+                    quantity: product.quantity,
+                })
+                .collect::<Vec<_>>()
+        })
+        .collect::<Vec<Vec<_>>>();
+
+    let addresses_ids = user_orders
+        .iter()
+        .map(|order| order.address_id)
+        .collect::<Vec<_>>();
+
+    let addresses_map = addresses::table
+        .filter(addresses::id.eq_any(&addresses_ids))
+        .load::<Address>(conn)?
+        .into_iter()
+        .zip(addresses_ids)
+        .map(|address| (address.1, address.0))
+        .collect::<HashMap<_, _>>();
+
+    let orders_info = user_orders
+        .into_iter()
+        .zip(products)
+        .collect::<Vec<_>>()
+        .into_iter()
+        .map(|(order, products)| OrderInfo {
+            id: order.id,
+            status: order.status,
+            total_sum: order.total_sum,
+            products,
+            street: addresses_map
+                .get(&order.address_id)
+                .map(|a| a.street.clone())
+                .unwrap_or_default(),
+            home: addresses_map
+                .get(&order.address_id)
+                .map(|a| a.home.clone())
+                .unwrap_or_default(),
+            apartment: addresses_map
+                .get(&order.address_id)
+                .map(|a| a.apartment.clone())
+                .unwrap_or(None),
+            comment: order.comment,
+        })
+        .collect::<Vec<_>>();
+
+    Ok(orders_info)
+}
+
+pub fn global_history(conn: &PgConnection) -> Result<Vec<OrderInfo>, Error> {
+    let user_orders = orders::table.load::<Order>(conn)?;
+
+    let products = ProductsInOrder::belonging_to(&user_orders)
+        .load::<ProductsInOrder>(conn)?
+        .grouped_by(&user_orders)
+        .iter()
+        .map(|products| {
+            products
+                .iter()
+                .map(|product| ProductInOrderInfo {
+                    id: product.product_id,
+                    quantity: product.quantity,
+                })
+                .collect::<Vec<_>>()
+        })
+        .collect::<Vec<Vec<_>>>();
+
+    let addresses_ids = user_orders
+        .iter()
+        .map(|order| order.address_id)
+        .collect::<Vec<_>>();
+
+    let addresses_map = addresses::table
+        .filter(addresses::id.eq_any(&addresses_ids))
+        .load::<Address>(conn)?
+        .into_iter()
+        .zip(addresses_ids)
+        .map(|address| (address.1, address.0))
+        .collect::<HashMap<_, _>>();
+
+    let orders_info = user_orders
+        .into_iter()
+        .zip(products)
+        .collect::<Vec<_>>()
+        .into_iter()
+        .map(|(order, products)| OrderInfo {
+            id: order.id,
+            status: order.status,
+            total_sum: order.total_sum,
+            products,
+            street: addresses_map
+                .get(&order.address_id)
+                .map(|a| a.street.clone())
+                .unwrap_or_default(),
+            home: addresses_map
+                .get(&order.address_id)
+                .map(|a| a.home.clone())
+                .unwrap_or_default(),
+            apartment: addresses_map
+                .get(&order.address_id)
+                .map(|a| a.apartment.clone())
+                .unwrap_or(None),
+            comment: order.comment,
+        })
+        .collect::<Vec<_>>();
+
+    Ok(orders_info)
+}
+
+pub fn pick_order_for_courier(conn: &PgConnection, user: &User) -> Result<OrderInfo, Error> {
+    let mut orders_without_courier = orders::table
+        .filter(orders::courier_id.is_null())
+        .load::<Order>(conn)?;
+
+    let order = orders_without_courier
+        .choose_mut(&mut rand::thread_rng())
+        .ok_or(Error::Empty)?;
+
+    diesel::update(orders::table.find(order.id))
+        .set(orders::courier_id.eq(user.id))
+        .execute(conn)?;
+
+    let info = get(conn, order.id)?;
+
+    Ok(info)
+}
+
+pub fn list_orders_for_courier(conn: &PgConnection, user: &User) -> Result<Vec<OrderInfo>, Error> {
+    let user_orders = orders::table
+        .filter(orders::courier_id.eq(user.id))
+        .filter(orders::status.ne(OrderStatus::Completed))
+        .load::<Order>(conn)?;
 
     let products = ProductsInOrder::belonging_to(&user_orders)
         .load::<ProductsInOrder>(conn)?

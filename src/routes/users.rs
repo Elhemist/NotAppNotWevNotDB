@@ -74,6 +74,21 @@ impl<'a, 'r> FromRequest<'a, 'r> for super::AuthorizedAdmin {
     }
 }
 
+impl<'a, 'r> FromRequest<'a, 'r> for super::AuthorizedCourier {
+    type Error = crate::errors::Error;
+
+    fn from_request(request: &'a Request<'r>) -> Outcome<Self, Self::Error> {
+        let user = AuthorizedUser::from_request(&request)?.0;
+
+        let user = match user.role {
+            UserRole::Courier => user,
+            _ => return Outcome::Failure((Status::Forbidden, Error::AccessDenied)),
+        };
+
+        Outcome::Success(super::AuthorizedCourier(user))
+    }
+}
+
 #[get("/users/current")]
 pub fn get_current_user(
     authorized_user: Result<super::AuthorizedUser, Error>,
