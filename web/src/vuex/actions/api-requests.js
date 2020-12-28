@@ -14,31 +14,84 @@ export default {
         return error;
       })
   },
-  POST_Register_To_API(phone, password,first_name,middle_name,last_name) {
+  DELETE_FROM_CART({commit}, index) {
     return axios({
+      headers:{'x-session-id': localStorage.token},
       method: 'post',
-      url: 'https://elhemist.orius.dev/api/users',
+      url: 'https://elhemist.orius.dev/api/cart',
       data: {
-        phone: phone,
-        password: password,
-        first_name: first_name,
-        middle_name: middle_name,
-        last_name: last_name
+        product_id: index,
+        quantity: 0
       }
     })
-    .then(response => console.log(response.data))
+    .then(
+    commit('REMOVE_FROM_CART', index))
     .catch(error => console.log(error));
   },
-  POST_LOGIN_To_API(phone, password) {
+  
+  DECREMENT_CART_ITEM({commit}, index) {
+    var notnya=index[0];
+    var nya1=index[1];
+    var nya2=index[2];
+    commit('DECREMENT', notnya);
     return axios({
+      headers:{'x-session-id': localStorage.token},
       method: 'post',
-      url: 'https://elhemist.orius.dev/api/users/login',
+      url: 'https://elhemist.orius.dev/api/cart',
       data: {
-        phone: phone,
-        password: password
+        "product_id": nya1,
+        "quantity": nya2
       }
     })
-    .then(response => console.log(response.data))
-    .catch(error => console.log(error));
   },
+  INCREMENT_CART_ITEM({commit}, index) {
+    var notnya=index[0];
+    var nya1=index[1];
+    var nya2=index[2];
+    commit('INCREMENT', notnya);
+    return axios({
+      headers:{'x-session-id': localStorage.token},
+      method: 'post',
+      url: 'https://elhemist.orius.dev/api/cart',
+      data: {
+        "product_id": nya1,
+        "quantity": nya2
+      }
+    })
+  },
+  CLEAR_CART({commit}){
+    commit('Clear');
+    return axios({
+      headers:{'x-session-id': localStorage.token},
+      method: 'delete',
+      url: 'https://elhemist.orius.dev/api/cart',
+      data: {
+      }
+    }).then(
+      commit('Clear'))
+  },
+  GET_ORDERS_FROM_API({commit}) {
+    return axios('https://elhemist.orius.dev/api/orders', {
+      headers:{'x-session-id': localStorage.token},
+      method: "GET"
+  }).then((orders) => {
+  commit('SET_ODERS_TO_STATE', orders.data.data);
+  localStorage.setItem('orderid', orders.data.data.id);
+  return orders.data.data;
+})
+  },
+  CREATE_ORDER({commit},index) {
+    var nya1=index[0];
+    var nya2=index[1];
+    return axios({
+      headers:{'x-session-id': localStorage.token},
+      method: 'post',
+      url: 'https://elhemist.orius.dev/api/orders',
+      data: {
+        "street": nya1,
+        "home": nya2
+      }
+    }).then(
+      commit('Clear'))
+},
 }

@@ -6,8 +6,10 @@
       </div>
     </router-link>
     
+      <button class="search_btn">
+        <p @click="ordhelp()">user</p>
+      </button>
     <b-nav-item to="/register">Зарегистрироваться</b-nav-item>
-    <b-nav-item to="/login">Войти</b-nav-item>
     <div class="search-field">
       <input
           type="text"
@@ -48,6 +50,10 @@
         if (this.$route.path !== '/catalog') {
           this.$router.push('/catalog')
         }
+      },
+      ordhelp(){
+        
+        this.$router.push('/user')
       },
       clearSearchField() {
         this.searchValue = ''

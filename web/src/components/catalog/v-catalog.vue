@@ -7,7 +7,7 @@
 
 
     <router-link :to="{name: 'cart', params: {cart_data: CART}}">
-      <div class="v-catalog__link_to_cart">Cart: {{CART.length}}</div>
+      <div class="v-catalog__link_to_cart">Корзина: {{CART.length}}</div>
     </router-link>
     <h1>Catalog</h1>
     <div class="filters">
@@ -16,31 +16,10 @@
           :options="categories"
           @select="sortByCategories"
       />
-      <div class="range-slider">
-        <input
-            type="range"
-            min="0"
-            max="10000"
-            step="10"
-            v-model.number="minPrice"
-            @change="setRangeSlider"
-        >
-        <input
-            type="range"
-            min="0"
-            max="10000"
-            step="10"
-            v-model.number="maxPrice"
-            @change="setRangeSlider"
-        >
-      </div>
-      <div class="range-values">
-        <p>Min: {{minPrice}}</p>
-        <p>Max: {{maxPrice}}</p>
-      </div>
     </div>
     <div class="v-catalog__list">
-      <v-catalog-item
+      <v-catalog-item 
+          class="nya"
           v-for="product in filteredProducts"
           :key="product.id"
           :product_data="product"
@@ -206,5 +185,8 @@
     position: relative;
     top: 2px;
     margin-top: -7px;
+  }
+  .nya{
+    max-width: 24%;
   }
 </style>
