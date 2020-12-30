@@ -5,7 +5,7 @@ use crate::schema::products_in_orders;
 use bigdecimal::BigDecimal;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, DbEnum, Serialize)]
+#[derive(Debug, DbEnum, Serialize, Deserialize)]
 #[DieselType = "Order_status"]
 #[serde(rename_all = "lowercase")]
 pub enum OrderStatus {

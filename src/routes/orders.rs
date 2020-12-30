@@ -1,9 +1,9 @@
-use crate::errors::Error;
 use crate::response::ResponseData;
 use crate::{
     db::{self, orders},
     models::order::NewAddress,
 };
+use crate::{errors::Error, models::order::OrderStatus};
 use serde::Deserialize;
 
 use rocket_contrib::json::{Json, JsonValue};
@@ -73,6 +73,26 @@ pub fn pick(
     let authorized_courier = authorized_courier?.0;
 
     let order_info = orders::pick_order_for_courier(&conn, &authorized_courier)?;
+
+    Ok(json!(ResponseData::success(Some(order_info))))
+}
+
+#[derive(Deserialize)]
+pub struct UpdateStatusData {
+    status: OrderStatus,
+}
+
+#[post("/orders/<id>/status", format = "json", data = "<update_status_data>")]
+pub fn update_status(
+    conn: db::Conn,
+    id: i32,
+    update_status_data: Json<UpdateStatusData>,
+    authorized_courier: Result<super::AuthorizedCourier, Error>,
+) -> Result<JsonValue, Error> {
+    let authorized_courier = authorized_courier?.0;
+    let new_status = update_status_data.0.status;
+
+    let order_info = orders::update_status(&conn, &authorized_courier, id, new_status)?;
 
     Ok(json!(ResponseData::success(Some(order_info))))
 }
