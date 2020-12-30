@@ -94,6 +94,7 @@ pub fn rocket(port: u16, db: &str) -> rocket::Rocket {
                 routes::orders::list,
                 routes::orders::create,
                 routes::orders::pick,
+                routes::orders::update_status,
             ],
         )
 }

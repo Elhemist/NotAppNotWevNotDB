@@ -346,3 +346,27 @@ pub fn list_orders_for_courier(conn: &PgConnection, user: &User) -> Result<Vec<O
 
     Ok(orders_info)
 }
+
+pub fn update_status(
+    conn: &PgConnection,
+    user: &User,
+    order_id: i32,
+    new_status: OrderStatus,
+) -> Result<OrderInfo, Error> {
+    let changes = diesel::update(
+        orders::table
+            .filter(orders::id.eq(order_id))
+            .filter(orders::courier_id.eq(user.id))
+            .filter(orders::status.ne(OrderStatus::Completed)),
+    )
+    .set(orders::status.eq(new_status))
+    .execute(conn)?;
+
+    if changes == 0 {
+        return Err(Error::NotFound);
+    }
+
+    let info = get(conn, order_id)?;
+
+    Ok(info)
+}
